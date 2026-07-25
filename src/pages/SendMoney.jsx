@@ -71,7 +71,17 @@ export default function SendMoney() {
       next.to = 'Source and destination must differ.';
     }
     setErrors(next);
-    return Object.keys(next).length === 0;
+    const isValid = Object.keys(next).length === 0;
+    if (!isValid) {
+      const firstErrorField = Object.keys(next)[0];
+      if (firstErrorField) {
+        const targetElement = document.getElementById(firstErrorField);
+        if (targetElement && typeof targetElement.focus === 'function') {
+          targetElement.focus();
+        }
+      }
+    }
+    return isValid;
   }
 
   async function handleSubmit(e) {
@@ -108,12 +118,27 @@ export default function SendMoney() {
     }
   }
 
+  const errorCount = Object.keys(errors).length;
+
   return (
     <div className="send-money">
       <h1 className="page-title">Send Money</h1>
 
       <div className="send-grid">
         <form className="send-form" onSubmit={handleSubmit}>
+          {errorCount > 0 && (
+            <div
+              className="sr-only"
+              role="alert"
+              aria-live="assertive"
+              aria-atomic="true"
+            >
+              {`Form submission failed with ${errorCount} validation ${
+                errorCount === 1 ? 'error' : 'errors'
+              }. Please check the fields below.`}
+            </div>
+          )}
+
           <TextField
             id="recipient"
             label="Recipient (email or Stellar address)"
@@ -150,9 +175,14 @@ export default function SendMoney() {
             >
               ⇄
             </button>
-            <CurrencySelect id="to" label="To" value={to} onChange={setTo} />
+            <CurrencySelect
+              id="to"
+              label="To"
+              value={to}
+              onChange={setTo}
+              error={errors.to}
+            />
           </div>
-          {errors.to && <span className="send-field-error">{errors.to}</span>}
 
           {submitError && <ErrorMessage message={submitError} />}
 

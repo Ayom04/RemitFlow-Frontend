@@ -75,12 +75,12 @@ cp .env.example .env
 
 The app adapts to three viewport ranges:
 
-| Range | Target | Layout |
-|---|---|---|
-| >1024px | Desktop | Full sidebar (240px), 3-column features grid |
-| 721–1024px | Tablet landscape | Full sidebar with toggle, 2-column features grid, compact content padding |
-| ≤720px | Tablet portrait / mobile | Collapsed sidebar (60px), single-column layouts, wrapped navbar |
-| ≤420px | Small mobile | Stacked hero actions, single-column currency grid |
+| Range      | Target                   | Layout                                                                    |
+| ---------- | ------------------------ | ------------------------------------------------------------------------- |
+| >1024px    | Desktop                  | Full sidebar (240px), 3-column features grid                              |
+| 721–1024px | Tablet landscape         | Full sidebar with toggle, 2-column features grid, compact content padding |
+| ≤720px     | Tablet portrait / mobile | Collapsed sidebar (60px), single-column layouts, wrapped navbar           |
+| ≤420px     | Small mobile             | Stacked hero actions, single-column currency grid                         |
 
 The Sidebar is rendered alongside the main content area on all viewports wider than
 720px and collapses automatically at narrower widths.
@@ -119,6 +119,15 @@ checkboxes) meet a minimum touch target of 44×44 CSS pixels, compliant with
 WCAG 2.5.5 (Target Size). A dedicated test suite in `test/touch-targets.test.js`
 audits the CSS declarations to ensure compliance isn't regressed.
 
+### Form Validation & Screen Reader Announcements
+
+Form components (`TextField`, `CurrencySelect`, `SendMoney`) follow WCAG accessibility best practices for error announcements:
+
+- **ARIA invalid states**: Inputs set `aria-invalid="true"` when validation fails and `aria-invalid="false"` when valid.
+- **Accessible descriptions**: Input controls link to error message elements using `aria-describedby`.
+- **Live region alerts**: Error messages render with `role="alert"`, `aria-live="assertive"`, and `aria-atomic="true"` so screen readers immediately announce validation feedback.
+- **Form submission failure feedback**: When form submission fails validation, an assertive live region summary announces the errors, and keyboard focus automatically shifts to the first invalid field.
+
 ## Tabs Component
 
 The `Tabs` component supports both controlled and uncontrolled modes:
@@ -127,10 +136,10 @@ The `Tabs` component supports both controlled and uncontrolled modes:
 <Tabs
   tabs={[
     { label: 'Send', content: <SendForm /> },
-    { label: 'History', content: <TransferHistory /> }
+    { label: 'History', content: <TransferHistory /> },
   ]}
-  activeIndex={0}          // omit for uncontrolled
-  onChange={(i) => {}}     // called on tab switch
+  activeIndex={0} // omit for uncontrolled
+  onChange={(i) => {}} // called on tab switch
 />
 ```
 

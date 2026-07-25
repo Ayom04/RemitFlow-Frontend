@@ -36,13 +36,19 @@ export default function TextField({
         type={type}
         value={value}
         placeholder={placeholder}
-        aria-invalid={error ? 'true' : undefined}
+        aria-invalid={error ? 'true' : 'false'}
         aria-describedby={error ? errorId : undefined}
         onChange={(e) => onChange(e.target.value)}
         onBlur={onBlur ? (e) => onBlur(e.target.value) : undefined}
       />
       {error && (
-        <span id={errorId} className="text-field-error" role="alert">
+        <span
+          id={errorId}
+          className="text-field-error"
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+        >
           {error}
         </span>
       )}

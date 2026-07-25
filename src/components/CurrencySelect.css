@@ -25,6 +25,17 @@
   border-color: var(--color-primary);
 }
 
+.currency-select-input.has-error {
+  border-color: #ef4444;
+}
+
+.currency-select-error {
+  font-size: 0.8rem;
+  color: #ef4444;
+  margin-top: 0.25rem;
+  display: block;
+}
+
 @media (prefers-contrast: more) {
   .currency-select-input {
     border-width: 2px;
