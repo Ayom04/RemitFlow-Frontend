@@ -17,7 +17,7 @@ export function useTransfers() {
     try {
       const data = await listTransfers();
       setTransfers(data);
-    } catch (err) {
+    } catch {
       setError('Could not load transfers. Please try again.');
     } finally {
       setLoading(false);
