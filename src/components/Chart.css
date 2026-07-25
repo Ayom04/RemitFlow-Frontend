@@ -104,6 +104,9 @@
     animation: none;
     background: var(--color-surface);
     border: 1px solid #475569;
+  }
+}
+
 @media print {
   .chart-container {
     border-color: #ccc !important;

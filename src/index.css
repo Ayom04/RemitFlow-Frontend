@@ -1,9 +1,11 @@
-:root {
+:root,
+[data-theme='dark'] {
   --color-bg: #0f172a;
   --color-surface: #1e293b;
   --color-primary: #6366f1;
   --color-text: #e2e8f0;
   --color-muted: #94a3b8;
+  --color-border: #1f2a3a;
 
   /* Safe-area insets for notched / rounded devices. Env falls back to 0px
      on browsers / devices without notch support. */
@@ -18,6 +20,15 @@
     'Segoe UI',
     Roboto,
     sans-serif;
+}
+
+[data-theme='light'] {
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+  --color-primary: #4f46e5;
+  --color-text: #0f172a;
+  --color-muted: #64748b;
+  --color-border: #e2e8f0;
 }
 
 * {

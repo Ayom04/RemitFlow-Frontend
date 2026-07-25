@@ -289,7 +289,9 @@ export default function Transfers() {
       {!loading && !error && filteredTransfers.length === 0 && (
         <EmptyState
           icon={hasActiveFilters ? '🔍' : '💸'}
-          title={hasActiveFilters ? 'No matching transfers' : 'No transfers yet'}
+          title={
+            hasActiveFilters ? 'No matching transfers' : 'No transfers yet'
+          }
           message={
             hasActiveFilters
               ? 'Try adjusting your search or filters.'
@@ -309,9 +311,11 @@ export default function Transfers() {
         <div className="transfers-list">
           <Chart
             title="Recent Transfer Amounts"
-            data={filteredTransfers
-              .slice(0, 5)
-              .map((t) => ({ value: parseFloat(t.sendAmount), label: t.recipient, currency: t.from }))}
+            data={filteredTransfers.slice(0, 5).map((t) => ({
+              value: parseFloat(t.sendAmount),
+              label: t.recipient,
+              currency: t.from,
+            }))}
             formatValue={(d) => formatAmount(d.value, d.currency)}
           />
           {filteredTransfers.map((t) => (
