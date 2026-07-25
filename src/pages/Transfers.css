@@ -27,6 +27,7 @@
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 0.9rem;
+  min-height: 44px;
 }
 
 .transfers-filters-status,
@@ -37,6 +38,7 @@
   font-size: 0.9rem;
   background: #fff;
   min-width: 140px;
+  min-height: 44px;
 }
 
 .transfers-list {
@@ -44,6 +46,32 @@
   flex-direction: column;
   gap: 0.75rem;
   margin-top: 0.75rem;
+}
+
+@media (max-width: 720px) {
+  .transfers-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .transfers-filters-search,
+  .transfers-filters-status,
+  .transfers-filters-range {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .transfers-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .transfers-header .btn {
+    width: 100%;
+  }
 }
 
 @media print {

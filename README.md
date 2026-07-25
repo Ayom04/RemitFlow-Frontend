@@ -42,7 +42,6 @@ The app runs at http://localhost:5173 by default.
 
 ```
 src/
-  components/   reusable UI (Navbar, Footer, Tabs, QuoteCard, TransferRow, ...)
   components/   reusable UI (Navbar, Sidebar, Footer, QuoteCard, TransferRow, ...)
   pages/        route screens (Home, SendMoney, Transfers, NotFound)
   services/     mock api, wallet, fx and quote logic
@@ -73,17 +72,17 @@ cp .env.example .env
 
 ## Responsive Layout
 
-The app adapts to three viewport ranges:
+The app adapts seamlessly across screen viewports:
 
-| Range | Target | Layout |
-|---|---|---|
-| >1024px | Desktop | Full sidebar (240px), 3-column features grid |
-| 721–1024px | Tablet landscape | Full sidebar with toggle, 2-column features grid, compact content padding |
-| ≤720px | Tablet portrait / mobile | Collapsed sidebar (60px), single-column layouts, wrapped navbar |
-| ≤420px | Small mobile | Stacked hero actions, single-column currency grid |
+| Range      | Target                   | Layout                                                                                                              |
+| ---------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| >1024px    | Desktop                  | Full sidebar (240px), 3-column features grid                                                                        |
+| 721–1024px | Tablet landscape         | Full sidebar with toggle, 2-column features grid, compact content padding                                           |
+| ≤720px     | Tablet portrait / mobile | Collapsed sidebar (60px), 2-column stacked transfer rows, vertical filter controls, horizontal chart scroll wrapper |
+| ≤480px     | Small mobile             | Single-column transfer rows, full-width filter controls, stacked hero actions                                       |
 
 The Sidebar is rendered alongside the main content area on all viewports wider than
-720px and collapses automatically at narrower widths.
+720px and collapses automatically at narrower widths. All dashboard filters and controls adhere to touch target guidelines.
 
 ## Testing
 
@@ -127,10 +126,10 @@ The `Tabs` component supports both controlled and uncontrolled modes:
 <Tabs
   tabs={[
     { label: 'Send', content: <SendForm /> },
-    { label: 'History', content: <TransferHistory /> }
+    { label: 'History', content: <TransferHistory /> },
   ]}
-  activeIndex={0}          // omit for uncontrolled
-  onChange={(i) => {}}     // called on tab switch
+  activeIndex={0} // omit for uncontrolled
+  onChange={(i) => {}} // called on tab switch
 />
 ```
 

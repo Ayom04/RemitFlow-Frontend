@@ -131,7 +131,9 @@
   font-size: 0.925rem;
   text-decoration: none;
   min-height: 44px;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .navbar-drawer-link:hover {

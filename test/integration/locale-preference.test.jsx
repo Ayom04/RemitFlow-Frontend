@@ -19,7 +19,7 @@ describe('Locale preference', () => {
     expect(await screen.findByText('$1,234.00')).toBeInTheDocument();
 
     await user.selectOptions(
-      screen.getByLabelText(/language & region/i),
+      screen.getAllByLabelText(/language & region/i)[0],
       'fr-FR',
     );
 
@@ -38,8 +38,10 @@ describe('Locale preference', () => {
 
     render(<App />);
 
-    expect(await screen.findByLabelText(/language & region/i)).toHaveValue(
-      'fr-FR',
-    );
+    expect(
+      await screen
+        .findAllByLabelText(/language & region/i)
+        .then((els) => els[0]),
+    ).toHaveValue('fr-FR');
   });
 });

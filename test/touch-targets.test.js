@@ -162,6 +162,22 @@ describe('touch target minimum sizes (44px)', () => {
         );
       });
     });
+
+    describe('Transfers filters', () => {
+      const css = readCSS(path.join('pages', 'Transfers.css'));
+
+      it('.transfers-filters-search has min-height 44px', () => {
+        expect(css).toMatch(
+          /\.transfers-filters-search\s*\{[^}]*min-height:\s*44px/,
+        );
+      });
+
+      it('.transfers-filters-status and .transfers-filters-range have min-height 44px', () => {
+        expect(css).toMatch(
+          /\.transfers-filters-status,\s*\n?\.transfers-filters-range\s*\{[^}]*min-height:\s*44px/,
+        );
+      });
+    });
   });
 
   describe('PullToRefresh', () => {

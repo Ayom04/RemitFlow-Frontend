@@ -11,12 +11,15 @@
 
 .chart-wrapper {
   position: relative;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .chart-svg {
   display: block;
   width: 100%;
   height: auto;
+  min-width: 280px;
 }
 
 .chart-shimmer {
@@ -104,6 +107,9 @@
     animation: none;
     background: var(--color-surface);
     border: 1px solid #475569;
+  }
+}
+
 @media print {
   .chart-container {
     border-color: #ccc !important;

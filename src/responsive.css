@@ -28,8 +28,9 @@
     row-gap: 0.75rem;
   }
 
-  .transfer-row:has(.transfer-select) {
-    grid-template-columns: auto 1fr;
+  .transfer-row.has-checkbox,
+  .transfer-row:has(.transfer-checkbox) {
+    grid-template-columns: auto 1fr 1fr;
   }
 
   .transfer-status {
@@ -37,7 +38,20 @@
   }
 }
 
-@media (max-width: 420px) {
+@media (max-width: 480px) {
+  .app-main {
+    padding: 1rem 0.75rem;
+  }
+
+  .transfer-row {
+    grid-template-columns: 1fr;
+  }
+
+  .transfer-row.has-checkbox,
+  .transfer-row:has(.transfer-checkbox) {
+    grid-template-columns: auto 1fr;
+  }
+
   .hero-actions {
     flex-direction: column;
   }

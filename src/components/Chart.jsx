@@ -3,13 +3,6 @@ import './Chart.css';
 import Button from './Button.jsx';
 import EmptyState from './EmptyState.jsx';
 
-export default function Chart({
-  data,
-  title,
-  emptyStateIcon = '📊',
-  emptyStateTitle = 'No chart data',
-  emptyStateMessage = 'Add some data to visualize.'
-}) {
 const SHIMMER_BARS = [
   { height: 45 },
   { height: 70 },
@@ -18,57 +11,65 @@ const SHIMMER_BARS = [
   { height: 55 },
   { height: 40 },
   { height: 65 },
-  { height: 50 }
+  { height: 50 },
 ];
 
-/**
- * Bar chart component with loading shimmer support.
- * @param {object} props
- * @param {Array<{value: number}>} props.data
- * @param {string} props.title
- * @param {boolean} [props.loading] - show shimmer placeholder when true
- */
-export default function Chart({ data, title, loading = false }) {
 const DEFAULT_COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+const VIEWBOX_WIDTH = 100;
+const VIEWBOX_HEIGHT = 100;
 
-export default function Chart({ data, series, title, formatValue }) {
+export default function Chart({
+  data = [],
+  series,
+  title,
+  loading = false,
+  formatValue,
+  emptyStateIcon = '📊',
+  emptyStateTitle = 'No chart data',
+  emptyStateMessage = 'Add some data to visualize.',
+}) {
   const chartRef = useRef(null);
   const [hoveredBar, setHoveredBar] = useState(null);
   const [hiddenSeries, setHiddenSeries] = useState(new Set());
 
   const isMultiSeries = Array.isArray(series) && series.length > 0;
+  const safeData = useMemo(() => (Array.isArray(data) ? data : []), [data]);
 
   const normalized = useMemo(() => {
     if (isMultiSeries) {
       const allSeries = series.map((s, i) => ({
         name: s.name,
         color: s.color || DEFAULT_COLORS[i % DEFAULT_COLORS.length],
-        data: s.data,
+        data: Array.isArray(s.data) ? s.data : [],
       }));
-      const barCount = Math.max(...allSeries.map(s => s.data.length), 0);
-      const visibleSeries = allSeries.filter(s => !hiddenSeries.has(s.name));
-      const maxValue = Math.max(...visibleSeries.flatMap(s => s.data.map(d => d.value)), 1);
+      const barCount = Math.max(...allSeries.map((s) => s.data.length), 0);
+      const visibleSeries = allSeries.filter((s) => !hiddenSeries.has(s.name));
+      const maxValue = Math.max(
+        ...visibleSeries.flatMap((s) => s.data.map((d) => d.value)),
+        1,
+      );
       return { allSeries, barCount, maxValue };
     }
     return {
-      allSeries: [{ name: null, color: '#6366f1', data }],
-      barCount: data.length,
-      maxValue: Math.max(...data.map(d => d.value), 1),
+      allSeries: [{ name: null, color: '#6366f1', data: safeData }],
+      barCount: safeData.length,
+      maxValue: Math.max(...safeData.map((d) => d.value), 1),
     };
-  }, [data, series, hiddenSeries, isMultiSeries]);
+  }, [safeData, series, hiddenSeries, isMultiSeries]);
 
   const { allSeries, barCount, maxValue } = normalized;
   const numSeries = allSeries.length;
   const groupWidth = barCount > 0 ? 100 / barCount : 100;
-  const barWidth = isMultiSeries && barCount > 0
-    ? (groupWidth - 2) / numSeries
-    : groupWidth - 2;
+  const barWidth =
+    isMultiSeries && barCount > 0
+      ? (groupWidth - 2) / numSeries
+      : groupWidth - 2;
 
   const getBarHeight = (v) => (v / maxValue) * 100;
   const getBarY = (v) => 100 - getBarHeight(v);
 
   const toggleSeries = (name) => {
-    setHiddenSeries(prev => {
+    setHiddenSeries((prev) => {
       const next = new Set(prev);
       if (next.has(name)) next.delete(name);
       else next.add(name);
@@ -78,23 +79,28 @@ export default function Chart({ data, series, title, formatValue }) {
 
   const downloadChart = () => {
     const svg = chartRef.current;
+    if (!svg) return;
     const serializer = new XMLSerializer();
     const source = serializer.serializeToString(svg);
     const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${title.toLowerCase().replace(/\s+/g, '-')}.svg`;
+    link.download = `${title ? title.toLowerCase().replace(/\s+/g, '-') : 'chart'}.svg`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   };
 
-  const maxValue = Math.max(...data.map((d) => d.value), 1);
-  if (!data || data.length === 0) {
+  const isEmpty = isMultiSeries
+    ? barCount === 0
+    : !safeData || safeData.length === 0;
+
+  if (!loading && isEmpty) {
     return (
       <div className="chart-container">
+        {title && <h3 className="chart-title">{title}</h3>}
         <EmptyState
           icon={emptyStateIcon}
           title={emptyStateTitle}
@@ -104,8 +110,6 @@ export default function Chart({ data, series, title, formatValue }) {
     );
   }
 
-  const maxValue = Math.max(...data.map(d => d.value), 1);
-  const barCount = data.length;
   const renderBars = () => {
     if (isMultiSeries) {
       return Array.from({ length: barCount }).map((_, i) =>
@@ -123,16 +127,17 @@ export default function Chart({ data, series, title, formatValue }) {
               fill={isHidden ? '#e5e7eb' : s.color}
               className="chart-bar"
               opacity={isHidden ? 0.3 : 1}
-              onMouseEnter={() => setHoveredBar({ seriesIndex: si, itemIndex: i })}
+              onMouseEnter={() =>
+                setHoveredBar({ seriesIndex: si, itemIndex: i })
+              }
               onMouseLeave={() => setHoveredBar(null)}
             />
           );
-        })
+        }),
       );
     }
 
-    if (!data) return null;
-    return data.map((d, i) => {
+    return safeData.map((d, i) => {
       const isHighlighted = hoveredBar?.itemIndex === i;
       return (
         <rect
@@ -172,7 +177,8 @@ export default function Chart({ data, series, title, formatValue }) {
       );
     }
 
-    const dp = data[itemIndex];
+    const dp = safeData[itemIndex];
+    if (!dp) return null;
     return (
       <div
         className="chart-tooltip"
@@ -189,7 +195,7 @@ export default function Chart({ data, series, title, formatValue }) {
 
   return (
     <div className="chart-container" aria-busy={loading}>
-      <h3 className="chart-title">{title}</h3>
+      {title && <h3 className="chart-title">{title}</h3>}
       {loading ? (
         <div className="chart-shimmer" aria-hidden="true">
           {SHIMMER_BARS.map((bar, i) => (
@@ -201,43 +207,25 @@ export default function Chart({ data, series, title, formatValue }) {
           ))}
         </div>
       ) : (
-        <svg ref={chartRef} className="chart-svg" viewBox="0 0 100 100">
-          {data.map((d, i) => (
-            <rect
-              key={i}
-              x={i * (100 / data.length)}
-              y={100 - (d.value / maxValue) * 100}
-              width={100 / data.length - 2}
-              height={(d.value / maxValue) * 100}
-              fill="#6366f1"
-            />
-          ))}
-        </svg>
-        {hoveredIndex !== null && (
-          <div
-            className="chart-tooltip"
-            role="tooltip"
-            style={{ left: `${(hoveredIndex + 0.5) * (100 / barCount)}%` }}
+        <div className="chart-wrapper">
+          <svg
+            ref={chartRef}
+            className="chart-svg"
+            viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`}
+            role="img"
+            aria-label={title || 'Chart'}
           >
-            <div className="chart-tooltip-value">
-              {formatValue
-                ? formatValue(data[hoveredIndex])
-                : data[hoveredIndex].value}
-            </div>
-            {data[hoveredIndex].label && (
-              <div className="chart-tooltip-label">
-                {data[hoveredIndex].label}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-          {renderBars()}
-        </svg>
-        {renderTooltip()}
-      </div>
+            {renderBars()}
+          </svg>
+          {renderTooltip()}
+        </div>
+      )}
       {isMultiSeries && (
-        <div className="chart-legend" role="group" aria-label="chart series legend">
+        <div
+          className="chart-legend"
+          role="group"
+          aria-label="chart series legend"
+        >
           {series.map((s) => {
             const isHidden = hiddenSeries.has(s.name);
             return (
@@ -248,7 +236,14 @@ export default function Chart({ data, series, title, formatValue }) {
                 onClick={() => toggleSeries(s.name)}
                 aria-pressed={!isHidden}
               >
-                <span className="chart-legend-swatch" style={{ backgroundColor: s.color || DEFAULT_COLORS[series.indexOf(s) % DEFAULT_COLORS.length] }} />
+                <span
+                  className="chart-legend-swatch"
+                  style={{
+                    backgroundColor:
+                      s.color ||
+                      DEFAULT_COLORS[series.indexOf(s) % DEFAULT_COLORS.length],
+                  }}
+                />
                 <span className="chart-legend-label">{s.name}</span>
               </button>
             );
@@ -257,7 +252,10 @@ export default function Chart({ data, series, title, formatValue }) {
       )}
       <div className="download-button">
         {loading ? (
-          <span className="chart-shimmer-btn skeleton-row" style={{ height: '2.5rem', width: '8rem' }} />
+          <span
+            className="chart-shimmer-btn skeleton-row"
+            style={{ height: '2.5rem', width: '8rem' }}
+          />
         ) : (
           <Button onClick={downloadChart}>Download SVG</Button>
         )}
