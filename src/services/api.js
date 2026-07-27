@@ -31,7 +31,7 @@ function read() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return JSON.parse(raw);
-  } catch (err) {
+  } catch {
     // ignore parse/storage errors
   }
   return SEED_TRANSFERS;
@@ -40,7 +40,7 @@ function read() {
 function write(transfers) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(transfers));
-  } catch (err) {
+  } catch {
     // ignore
   }
 }

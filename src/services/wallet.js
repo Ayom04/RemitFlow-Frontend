@@ -30,7 +30,7 @@ export function connectWallet() {
       };
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(account));
-      } catch (err) {
+      } catch {
         // localStorage may be unavailable; ignore for the demo.
       }
       resolve(account);
@@ -43,7 +43,7 @@ export function connectWallet() {
  * @param {object} payload - the transaction details to "sign"
  * @returns {Promise<{signature: string}>}
  */
-export function signTransaction(payload) {
+export function signTransaction(_payload) {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
@@ -64,7 +64,7 @@ export function getStoredWallet() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     return raw ? JSON.parse(raw) : null;
-  } catch (err) {
+  } catch {
     return null;
   }
 }
@@ -75,7 +75,7 @@ export function getStoredWallet() {
 export function disconnectWallet() {
   try {
     localStorage.removeItem(STORAGE_KEY);
-  } catch (err) {
+  } catch {
     // ignore
   }
 }

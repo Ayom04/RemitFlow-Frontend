@@ -15,24 +15,15 @@ const SHIMMER_BARS = [
 ];
 
 const DEFAULT_COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
-const VIEW_BOX_WIDTH = 100;
-const VIEW_BOX_HEIGHT = 100;
+const VIEWBOX_WIDTH = 100;
+const VIEWBOX_HEIGHT = 100;
 
-/**
- * Bar chart component with loading shimmer support.
- * @param {object} props
- * @param {Array<{value: number}>} [props.data]
- * @param {Array<{name: string, color?: string, data: Array<{value: number}>}>} [props.series]
- * @param {string} props.title
- * @param {Function} [props.formatValue]
- * @param {boolean} [props.loading]
- */
 export default function Chart({
   data = [],
   series,
   title,
-  formatValue,
   loading = false,
+  formatValue,
   emptyStateIcon = '📊',
   emptyStateTitle = 'No chart data',
   emptyStateMessage = 'Add some data to visualize.',
@@ -42,6 +33,7 @@ export default function Chart({
   const [hiddenSeries, setHiddenSeries] = useState(new Set());
 
   const isMultiSeries = Array.isArray(series) && series.length > 0;
+  const safeData = useMemo(() => (Array.isArray(data) ? data : []), [data]);
 
   const normalized = useMemo(() => {
     const safeData = Array.isArray(data) ? data : [];
@@ -60,11 +52,11 @@ export default function Chart({
       return { allSeries, barCount, maxValue };
     }
     return {
-      allSeries: [{ name: null, color: '#6366f1', data }],
-      barCount: data.length,
-      maxValue: Math.max(...data.map((d) => d.value), 1),
+      allSeries: [{ name: null, color: '#6366f1', data: safeData }],
+      barCount: safeData.length,
+      maxValue: Math.max(...safeData.map((d) => d.value), 1),
     };
-  }, [data, series, hiddenSeries, isMultiSeries]);
+  }, [safeData, series, hiddenSeries, isMultiSeries]);
 
   const { allSeries, barCount, maxValue } = normalized;
   const numSeries = allSeries.length;
@@ -88,22 +80,28 @@ export default function Chart({
 
   const downloadChart = () => {
     const svg = chartRef.current;
+    if (!svg) return;
     const serializer = new XMLSerializer();
     const source = serializer.serializeToString(svg);
     const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${title.toLowerCase().replace(/\s+/g, '-')}.svg`;
+    link.download = `${title ? title.toLowerCase().replace(/\s+/g, '-') : 'chart'}.svg`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   };
 
-  if (!data || data.length === 0) {
+  const isEmpty = isMultiSeries
+    ? barCount === 0
+    : !safeData || safeData.length === 0;
+
+  if (!loading && isEmpty) {
     return (
       <div className="chart-container">
+        {title && <h3 className="chart-title">{title}</h3>}
         <EmptyState
           icon={emptyStateIcon}
           title={emptyStateTitle}
@@ -140,8 +138,7 @@ export default function Chart({
       );
     }
 
-    if (!data) return null;
-    return data.map((d, i) => {
+    return safeData.map((d, i) => {
       const isHighlighted = hoveredBar?.itemIndex === i;
       return (
         <rect
@@ -181,7 +178,8 @@ export default function Chart({
       );
     }
 
-    const dp = data[itemIndex];
+    const dp = safeData[itemIndex];
+    if (!dp) return null;
     return (
       <div
         className="chart-tooltip"
@@ -198,7 +196,7 @@ export default function Chart({
 
   return (
     <div className="chart-container" aria-busy={loading}>
-      <h3 className="chart-title">{title}</h3>
+      {title && <h3 className="chart-title">{title}</h3>}
       {loading ? (
         <div className="chart-shimmer" aria-hidden="true">
           {SHIMMER_BARS.map((bar, i) => (
@@ -214,7 +212,9 @@ export default function Chart({
           <svg
             ref={chartRef}
             className="chart-svg"
-            viewBox={`0 0 ${VIEW_BOX_WIDTH} ${VIEW_BOX_HEIGHT}`}
+            viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`}
+            role="img"
+            aria-label={title || 'Chart'}
           >
             {renderBars()}
           </svg>

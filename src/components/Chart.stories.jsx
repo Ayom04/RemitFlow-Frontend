@@ -32,17 +32,18 @@ export const Default = {
   },
 };
 
-export const Empty = {
+export const SingleTransfer = {
   args: {
-    data: [],
-    title: 'Monthly Transfers',
+    title: 'Single Transfer',
+    data: [{ value: 250, label: 'juan@example.com', currency: 'USD' }],
+    formatValue: (d) => formatAmount(d.value, d.currency),
   },
 };
 
-export const CustomEmptyState = {
+export const Empty = {
   args: {
-    data: [],
     title: 'Monthly Transfers',
+    data: [],
     emptyStateIcon: '💸',
     emptyStateTitle: 'No transfers yet',
     emptyStateMessage: 'Your first transfer will appear here.',
@@ -56,24 +57,12 @@ export const MultiSeries = {
       {
         name: 'Sent',
         color: '#6366f1',
-        data: [
-          { value: 200, label: 'amina@example.com' },
-          { value: 120, label: 'GBQAZ7Z3X7...' },
-          { value: 450, label: 'chidi@example.com' },
-          { value: 80, label: 'devi@example.com' },
-          { value: 310, label: 'emeka@example.com' },
-        ],
+        data: sampleData,
       },
       {
         name: 'Received',
         color: '#10b981',
-        data: [
-          { value: 180, label: 'amina@example.com' },
-          { value: 100, label: 'GBQAZ7Z3X7...' },
-          { value: 500, label: 'chidi@example.com' },
-          { value: 60, label: 'devi@example.com' },
-          { value: 280, label: 'emeka@example.com' },
-        ],
+        data: sampleData.map((d) => ({ ...d, value: d.value * 0.9 })),
       },
     ],
     formatValue: (d) => `$${d.value.toFixed(2)}`,

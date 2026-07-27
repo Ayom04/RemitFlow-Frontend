@@ -12,7 +12,7 @@ export function useLocalStorage(key, initialValue) {
     try {
       const raw = localStorage.getItem(key);
       return raw != null ? JSON.parse(raw) : initialValue;
-    } catch (err) {
+    } catch {
       return initialValue;
     }
   });
@@ -23,7 +23,7 @@ export function useLocalStorage(key, initialValue) {
         const resolved = typeof next === 'function' ? next(prev) : next;
         try {
           localStorage.setItem(key, JSON.stringify(resolved));
-        } catch (err) {
+        } catch {
           // storage may be unavailable; keep the in-memory value.
         }
         return resolved;
