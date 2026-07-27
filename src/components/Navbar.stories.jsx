@@ -17,5 +17,3 @@ export default {
 export const Default = {
   render: () => <Navbar />,
 };
-  render: () => <Navbar />
-}

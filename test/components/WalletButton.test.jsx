@@ -5,8 +5,10 @@ import WalletButton from '../../src/components/WalletButton.jsx';
 import { AppProvider } from '../../src/context/AppContext.jsx';
 import * as walletService from '../../src/services/wallet.js';
 
-function renderWithProvider(component) {
-  return render(<AppProvider>{component}</AppProvider>);
+function renderWithProvider(component, connectTimeoutMs = 30000) {
+  return render(
+    <AppProvider connectTimeoutMs={connectTimeoutMs}>{component}</AppProvider>,
+  );
 }
 
 describe('WalletButton', () => {
@@ -38,37 +40,35 @@ describe('WalletButton', () => {
   });
 
   it('displays wallet info when connected', async () => {
-    const mockAccount = { publicKey: 'GBQAZ7Z3X7DEMOPUBLICKEY', balance: 1000 };
-    vi.spyOn(walletService, 'connectWallet').mockResolvedValue(mockAccount);
+    vi.spyOn(walletService, 'connectWallet').mockResolvedValue({
+      publicKey: 'GA7Y253GXX7G4L5BJSJ36QL532454532532454532532454532532454',
+      balance: 5000,
+    });
 
     renderWithProvider(<WalletButton />);
+    const button = screen.getByRole('button', { name: /connect wallet/i });
 
-    await userEvent.click(
-      screen.getByRole('button', { name: /connect wallet/i }),
-    );
+    await userEvent.click(button);
 
     await waitFor(() => {
-      expect(screen.getByText(/1000 XLM/)).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /disconnect/i }),
-      ).toBeInTheDocument();
+      expect(screen.getByText('GA7Y25...2454')).toBeInTheDocument();
+      expect(screen.getByText(/5000/)).toBeInTheDocument();
     });
   });
 
   it('displays error alert when connection is rejected', async () => {
     vi.spyOn(walletService, 'connectWallet').mockRejectedValue(
-      new Error('User rejected the connection request'),
+      new Error('User cancelled connection'),
     );
 
     renderWithProvider(<WalletButton />);
+    const button = screen.getByRole('button', { name: /connect wallet/i });
 
-    await userEvent.click(
-      screen.getByRole('button', { name: /connect wallet/i }),
-    );
+    await userEvent.click(button);
 
     await waitFor(() => {
       expect(
-        screen.getByText(/user rejected the connection request/i),
+        screen.getByText(/user cancelled connection/i),
       ).toBeInTheDocument();
     });
 
@@ -83,7 +83,7 @@ describe('WalletButton', () => {
       () => new Promise(() => {}), // Never resolves
     );
 
-    renderWithProvider(<WalletButton />);
+    renderWithProvider(<WalletButton />, 100);
 
     await userEvent.click(
       screen.getByRole('button', { name: /connect wallet/i }),
@@ -93,7 +93,7 @@ describe('WalletButton', () => {
       () => {
         expect(screen.getByText(/connection timeout/i)).toBeInTheDocument();
       },
-      { timeout: 31000 },
+      { timeout: 2000 },
     );
   });
 

@@ -12,9 +12,21 @@ import {
 } from '../constants/locales.js';
 
 const LOCALE_STORAGE_KEY = 'remitflow:locale';
+const THEME_STORAGE_KEY = 'remitflow:theme';
 
-// Global app context: holds the connected wallet, the locale preference used
-// for currency/date/number formatting, and exposes the actions for both.
+const SUPPORTED_THEMES = ['dark', 'light', 'system'];
+
+function getSystemTheme() {
+  if (typeof window !== 'undefined' && window.matchMedia) {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
+      ? 'dark'
+      : 'light';
+  }
+  return 'dark';
+}
+
+// Global app context: holds the connected wallet, locale preference, theme preference,
+// and exposes actions for all of them.
 const AppContext = createContext(null);
 
 /**
@@ -31,6 +43,44 @@ export function AppProvider({ children, connectTimeoutMs = 30000 }) {
     LOCALE_STORAGE_KEY,
     DEFAULT_LOCALE,
   );
+
+  const [rawTheme, setRawTheme] = useLocalStorage(THEME_STORAGE_KEY, 'dark');
+
+  const theme = SUPPORTED_THEMES.includes(rawTheme) ? rawTheme : 'dark';
+
+  function setTheme(newTheme) {
+    setRawTheme(SUPPORTED_THEMES.includes(newTheme) ? newTheme : 'dark');
+  }
+
+  function toggleTheme() {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  }
+
+  const [systemTheme, setSystemTheme] = useState(getSystemTheme);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = (e) => {
+      setSystemTheme(e.matches ? 'dark' : 'light');
+    };
+
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', handler);
+      return () => mediaQuery.removeEventListener('change', handler);
+    } else if (mediaQuery.addListener) {
+      mediaQuery.addListener(handler);
+      return () => mediaQuery.removeListener(handler);
+    }
+  }, []);
+
+  const resolvedTheme = theme === 'system' ? systemTheme : theme;
+
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute('data-theme', resolvedTheme);
+    }
+  }, [resolvedTheme]);
 
   // Guard against a stale or tampered value in localStorage (e.g. left over
   // from a version that supported a different set of locales).
@@ -89,6 +139,10 @@ export function AppProvider({ children, connectTimeoutMs = 30000 }) {
     locale,
     setLocale,
     locales: LOCALES,
+    theme,
+    resolvedTheme,
+    setTheme,
+    toggleTheme,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

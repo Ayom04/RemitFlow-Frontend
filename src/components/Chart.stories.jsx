@@ -1,6 +1,5 @@
 import Chart from './Chart.jsx';
 import { formatAmount } from '../utils/format.js';
-import Chart from './Chart.jsx'
 
 export default {
   title: 'Components/Chart',
@@ -8,13 +7,14 @@ export default {
   tags: ['autodocs'],
   argTypes: {
     data: { control: 'object' },
+    series: { control: 'object' },
+    title: { control: 'text' },
+    emptyStateIcon: { control: 'text' },
+    emptyStateTitle: { control: 'text' },
+    emptyStateMessage: { control: 'text' },
     formatValue: { control: false },
   },
 };
-    series: { control: 'object' },
-    formatValue: { control: false }
-  }
-}
 
 const sampleData = [
   { value: 200, label: 'amina@example.com', currency: 'USD' },
@@ -27,55 +27,27 @@ const sampleData = [
 export const Default = {
   args: {
     title: 'Recent Transfer Amounts',
-    data: [
-      { value: 200 },
-      { value: 120 },
-      { value: 450 },
-      { value: 80 },
-      { value: 310 },
-    ],
-  },
-};
-    title: { control: 'text' },
-    emptyStateIcon: { control: 'text' },
-    emptyStateTitle: { control: 'text' },
-    emptyStateMessage: { control: 'text' }
-  }
-}
-
-export const Default = {
-  args: {
-    data: [{ value: 10 }, { value: 20 }, { value: 15 }, { value: 30 }],
-    title: 'Monthly Transfers'
-  }
-}
-
-export const Empty = {
-  args: {
-    title: 'Recent Transfer Amounts',
     data: sampleData,
     formatValue: (d) => formatAmount(d.value, d.currency),
   },
 };
+
+export const Empty = {
+  args: {
     data: [],
-    title: 'Monthly Transfers'
-  }
-}
+    title: 'Monthly Transfers',
+  },
+};
 
 export const CustomEmptyState = {
   args: {
-    title: 'Single Transfer',
-    data: [{ value: 250, label: 'juan@example.com', currency: 'USD' }],
-    formatValue: (d) => formatAmount(d.value, d.currency),
-  },
-};
     data: [],
     title: 'Monthly Transfers',
     emptyStateIcon: '💸',
     emptyStateTitle: 'No transfers yet',
-    emptyStateMessage: 'Your first transfer will appear here.'
-  }
-}
+    emptyStateMessage: 'Your first transfer will appear here.',
+  },
+};
 
 export const MultiSeries = {
   args: {
@@ -89,8 +61,8 @@ export const MultiSeries = {
           { value: 120, label: 'GBQAZ7Z3X7...' },
           { value: 450, label: 'chidi@example.com' },
           { value: 80, label: 'devi@example.com' },
-          { value: 310, label: 'emeka@example.com' }
-        ]
+          { value: 310, label: 'emeka@example.com' },
+        ],
       },
       {
         name: 'Received',
@@ -100,10 +72,10 @@ export const MultiSeries = {
           { value: 100, label: 'GBQAZ7Z3X7...' },
           { value: 500, label: 'chidi@example.com' },
           { value: 60, label: 'devi@example.com' },
-          { value: 280, label: 'emeka@example.com' }
-        ]
-      }
+          { value: 280, label: 'emeka@example.com' },
+        ],
+      },
     ],
-    formatValue: (d) => `$${d.value.toFixed(2)}`
-  }
-}
+    formatValue: (d) => `$${d.value.toFixed(2)}`,
+  },
+};

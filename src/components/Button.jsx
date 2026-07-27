@@ -19,7 +19,7 @@ export default function Button({
   onClick,
   to,
   ariaLabel,
-  title
+  title,
 }) {
   const className = `btn btn-${variant}`;
 
