@@ -9,10 +9,10 @@ export default {
     data: { control: 'object' },
     series: { control: 'object' },
     title: { control: 'text' },
+    formatValue: { control: false },
     emptyStateIcon: { control: 'text' },
     emptyStateTitle: { control: 'text' },
     emptyStateMessage: { control: 'text' },
-    formatValue: { control: false },
   },
 };
 

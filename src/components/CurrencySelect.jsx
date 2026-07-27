@@ -8,8 +8,10 @@ import './CurrencySelect.css';
  * @param {Function} props.onChange - called with the new code
  * @param {string} [props.label] - field label
  * @param {string} [props.id] - input id, also used for the label association
+ * @param {string} [props.error] - validation error message to display
  */
-export default function CurrencySelect({ value, onChange, label, id }) {
+export default function CurrencySelect({ value, onChange, label, id, error }) {
+  const errorId = id ? `${id}-error` : undefined;
   return (
     <div className="currency-select">
       {label && (
@@ -19,8 +21,10 @@ export default function CurrencySelect({ value, onChange, label, id }) {
       )}
       <select
         id={id}
-        className="currency-select-input"
+        className={`currency-select-input ${error ? 'has-error' : ''}`}
         value={value}
+        aria-invalid={error ? 'true' : 'false'}
+        aria-describedby={error ? errorId : undefined}
         onChange={(e) => onChange(e.target.value)}
       >
         {CURRENCIES.map((c) => (
@@ -29,6 +33,17 @@ export default function CurrencySelect({ value, onChange, label, id }) {
           </option>
         ))}
       </select>
+      {error && (
+        <span
+          id={errorId}
+          className="currency-select-error"
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+        >
+          {error}
+        </span>
+      )}
     </div>
   );
 }

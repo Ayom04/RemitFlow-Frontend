@@ -18,10 +18,8 @@ describe('Locale preference', () => {
     // Default locale (en-US): period as the decimal separator.
     expect(await screen.findByText('$1,234.00')).toBeInTheDocument();
 
-    await user.selectOptions(
-      screen.getByLabelText(/language & region/i),
-      'fr-FR',
-    );
+    const localeSelect = screen.getAllByLabelText(/language & region/i)[0];
+    await user.selectOptions(localeSelect, 'fr-FR');
 
     // French formatting uses a comma as the decimal separator instead of a
     // period, and groups digits with a space rather than a comma.
@@ -38,8 +36,7 @@ describe('Locale preference', () => {
 
     render(<App />);
 
-    expect(await screen.findByLabelText(/language & region/i)).toHaveValue(
-      'fr-FR',
-    );
+    const localeSelects = await screen.findAllByLabelText(/language & region/i);
+    expect(localeSelects[0]).toHaveValue('fr-FR');
   });
 });

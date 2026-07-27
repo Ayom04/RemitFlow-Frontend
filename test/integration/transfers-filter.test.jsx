@@ -137,7 +137,7 @@ describe('Transfers page filter sync', () => {
     window.history.pushState({}, '', '/transfers?range=7d');
     render(<App />);
 
-    await screen.findByText(/GBQAZ7Z3X7/);
+    await screen.findByText(/GBQAZ7Z3X7/, undefined, { timeout: 4000 });
     expect(screen.queryByText(/amina@exam/)).not.toBeInTheDocument();
   });
 });

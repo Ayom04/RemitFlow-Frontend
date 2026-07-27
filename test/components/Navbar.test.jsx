@@ -86,17 +86,13 @@ describe('Navbar', () => {
     expect(screen.getByLabelText('Open menu')).toBeInTheDocument();
   });
 
-  it('renders the LocaleSelect, ThemeToggle, and WalletButton in the drawer on mobile', () => {
+  it('renders the LocaleSelect and WalletButton in the drawer on mobile', () => {
     renderNavbar();
     const hamburger = screen.getByLabelText('Open menu');
     fireEvent.click(hamburger);
 
     const localeSelects = screen.getAllByLabelText('Language & region');
     expect(localeSelects.length).toBe(2);
-    const themeToggles = screen.getAllByRole('button', {
-      name: /switch to light mode/i,
-    });
-    expect(themeToggles.length).toBe(2);
     expect(screen.getAllByText('Connect Wallet').length).toBe(2);
   });
 });

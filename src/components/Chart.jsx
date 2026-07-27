@@ -15,12 +15,20 @@ const SHIMMER_BARS = [
 ];
 
 const DEFAULT_COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+const VIEW_BOX_WIDTH = 100;
+const VIEW_BOX_HEIGHT = 100;
 
 /**
  * Bar chart component with loading shimmer support.
+ * @param {object} props
+ * @param {Array<{value: number}>} [props.data]
+ * @param {Array<{name: string, color?: string, data: Array<{value: number}>}>} [props.series]
+ * @param {string} props.title
+ * @param {Function} [props.formatValue]
+ * @param {boolean} [props.loading]
  */
 export default function Chart({
-  data,
+  data = [],
   series,
   title,
   formatValue,
@@ -52,9 +60,9 @@ export default function Chart({
       return { allSeries, barCount, maxValue };
     }
     return {
-      allSeries: [{ name: null, color: '#6366f1', data: safeData }],
-      barCount: safeData.length,
-      maxValue: Math.max(...safeData.map((d) => d.value), 1),
+      allSeries: [{ name: null, color: '#6366f1', data }],
+      barCount: data.length,
+      maxValue: Math.max(...data.map((d) => d.value), 1),
     };
   }, [data, series, hiddenSeries, isMultiSeries]);
 
@@ -93,7 +101,7 @@ export default function Chart({
     URL.revokeObjectURL(url);
   };
 
-  if (!loading && !barCount) {
+  if (!data || data.length === 0) {
     return (
       <div className="chart-container">
         <EmptyState
@@ -202,8 +210,12 @@ export default function Chart({
           ))}
         </div>
       ) : (
-        <div className="chart-body">
-          <svg ref={chartRef} className="chart-svg" viewBox="0 0 100 100">
+        <div className="chart-wrapper">
+          <svg
+            ref={chartRef}
+            className="chart-svg"
+            viewBox={`0 0 ${VIEW_BOX_WIDTH} ${VIEW_BOX_HEIGHT}`}
+          >
             {renderBars()}
           </svg>
           {renderTooltip()}

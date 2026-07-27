@@ -16,6 +16,8 @@ export default {
     },
     disabled: { control: 'boolean' },
     children: { control: 'text' },
+    ariaLabel: { control: 'text' },
+    title: { control: 'text' },
   },
 };
 
