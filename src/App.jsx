@@ -12,10 +12,9 @@ import NotFound from './pages/NotFound.jsx';
 import './App.css';
 import './print.css';
 
-/**
- * Root application component: wires up the context, router and layout.
- */
 export default function App() {
+  const showSidebar = window.location.pathname === '/';
+
   return (
     <LocaleProvider>
       <AppProvider>
@@ -24,7 +23,7 @@ export default function App() {
             <a href="#main-content" className="skip-link">
               Skip to content
             </a>
-            <Sidebar />
+            {showSidebar && <Sidebar />}
             <div className="app-content">
               <Navbar />
               <main id="main-content" className="app-main">
