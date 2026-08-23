@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { listTransfers, createTransfer } from '../services/api.js';
+import { ContractViolationError } from '../services/contracts/schema.js';
 
 /**
  * Hook for loading and creating transfers.
@@ -17,8 +18,17 @@ export function useTransfers() {
     try {
       const data = await listTransfers();
       setTransfers(data);
-    } catch {
-      setError('Could not load transfers. Please try again.');
+    } catch (err) {
+      if (err instanceof ContractViolationError) {
+        // A schema change, not a flaky request. Retrying will not help, and
+        // showing an empty list would imply the transfers no longer exist.
+        console.error(err.message);
+        setError(
+          `Your transfers could not be displayed: the data did not match the expected format (${err.contract}). Nothing has been lost — please try again shortly.`,
+        );
+      } else {
+        setError('Could not load transfers. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

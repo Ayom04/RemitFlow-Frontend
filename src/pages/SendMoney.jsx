@@ -6,6 +6,7 @@ import QuoteCard from '../components/QuoteCard.jsx';
 import Button from '../components/Button.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
 import { buildQuote } from '../services/quote.js';
+import { ContractViolationError } from '../services/contracts/schema.js';
 import { formatCurrencyInput } from '../utils/format.js';
 import {
   isPositiveAmount,
@@ -100,18 +101,40 @@ export default function SendMoney() {
 
       // Build from the live amount so a pending debounce can't submit a stale quote.
       const finalQuote = buildQuote(amount, from, to);
-      if (!finalQuote) return;
+      if (!finalQuote) {
+        // Previously this returned silently, leaving the user on an enabled
+        // button with no explanation of why nothing happened.
+        setSubmitError(
+          'We could not price this transfer. Check the amount and the selected currencies.',
+        );
+        return;
+      }
 
+      // Record the fee, rate and expiry alongside the amounts so the receipt
+      // can reproduce exactly what was quoted rather than re-deriving it from
+      // a rate that may since have moved.
       await addTransfer({
         recipient,
         from,
         to,
         sendAmount: finalQuote.sendAmount,
         receiveAmount: finalQuote.receiveAmount,
+        fee: finalQuote.fee,
+        rate: finalQuote.rate,
+        expiresAt: finalQuote.expiresAt,
       });
       navigate('/transfers');
     } catch (err) {
-      setSubmitError('Could not submit the transfer. Please try again.');
+      if (err instanceof ContractViolationError) {
+        // The full field-by-field diff goes to the console; the user gets a
+        // message that distinguishes "we rejected this" from "try again".
+        console.error(err.message);
+        setSubmitError(
+          'This transfer was rejected before it was sent because the details did not match the expected format. Nothing was submitted.',
+        );
+      } else {
+        setSubmitError('Could not submit the transfer. Please try again.');
+      }
     } finally {
       submissionLock.current = false;
       setSubmitting(false);

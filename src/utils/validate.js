@@ -1,8 +1,10 @@
 // Simple validation helpers for the Send Money form.
+import { compareDecimal, parseDecimal } from './money.js';
 
 export function isPositiveAmount(value) {
-  const num = Number(value);
-  return Number.isFinite(num) && num > 0;
+  const parsed = parseDecimal(value);
+  if (!parsed.ok) return false;
+  return compareDecimal(parsed.value, 0) > 0;
 }
 
 export function isEmail(value) {
@@ -19,12 +21,18 @@ export function validateRecipient(value) {
 
 /**
  * Check that an amount does not exceed the available balance.
+ *
+ * Compared exactly rather than as floats: at the boundary, `0.1 + 0.2 <= 0.3`
+ * is false in binary floating point, which would reject a spend of exactly the
+ * whole balance.
+ *
  * @param {number|string} amount
- * @param {number} balance
- * @returns {boolean}
+ * @param {number|string} balance
+ * @returns {boolean} false when either value is not a parseable decimal
  */
 export function isWithinBalance(amount, balance) {
-  const num = Number(amount);
-  if (!Number.isFinite(num)) return false;
-  return num <= Number(balance);
+  const parsedAmount = parseDecimal(amount);
+  const parsedBalance = parseDecimal(balance);
+  if (!parsedAmount.ok || !parsedBalance.ok) return false;
+  return compareDecimal(parsedAmount.value, parsedBalance.value) <= 0;
 }
