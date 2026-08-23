@@ -167,6 +167,8 @@ describe('Transfers page — contract error states', () => {
     ).toBeInTheDocument();
     expect(screen.queryByText(/no transfers yet/i)).not.toBeInTheDocument();
 
+    // One aggregate diff, not one per rejected row plus the aggregate.
+    expect(console.error).toHaveBeenCalledTimes(1);
     const [diff] = console.error.mock.calls.at(-1);
     expect(diff).toContain('send_amount');
     expect(diff).toContain('looks like a renamed "sendAmount"');

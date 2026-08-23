@@ -83,14 +83,17 @@ export function listTransfers() {
         const { transfers, rejected, breaking } = parseTransferList(read(), {
           source: 'listTransfers',
         });
-        if (rejected.length) reportRejected(rejected);
         if (breaking) {
+          // Every row failed: raise one aggregate error carrying all the
+          // issues. Reporting each row here as well would log the same diff
+          // twice, since the caller logs whatever it catches.
           throw new ContractViolationError(
             transferContract,
             rejected.flatMap((entry) => entry.issues),
             { source: 'listTransfers' },
           );
         }
+        if (rejected.length) reportRejected(rejected);
         resolve(
           transfers
             .slice()
