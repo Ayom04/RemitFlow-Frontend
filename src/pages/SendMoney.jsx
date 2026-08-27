@@ -6,6 +6,7 @@ import QuoteCard from '../components/QuoteCard.jsx';
 import Button from '../components/Button.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
 import { buildQuote } from '../services/quote.js';
+import { getUserErrorMessage, normalizeError } from '../services/errors.js';
 import { formatCurrencyInput, parseCurrencyInput } from '../utils/format.js';
 import {
   isPositiveAmount,
@@ -161,6 +162,7 @@ export default function SendMoney() {
       });
       navigate('/transfers');
     } catch (err) {
+      const normalized = normalizeError(err, { source: 'api' });
       // A transfer can be interrupted mid-signature by a connection drop.
       // The honest message here is "unknown", not "failed": the backend may
       // have accepted the transfer even though the response never arrived.
@@ -170,7 +172,7 @@ export default function SendMoney() {
       const connectedNow = typeof navigator !== 'undefined' && navigator.onLine;
       setSubmitError(
         connectedNow
-          ? 'Could not submit the transfer. Please try again.'
+          ? getUserErrorMessage(normalized)
           : 'Connection lost while sending. Reconnect to check your transfer status.',
       );
     } finally {
