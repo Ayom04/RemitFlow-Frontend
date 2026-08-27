@@ -1,10 +1,8 @@
 // Simple validation helpers for the Send Money form.
-import { compareDecimal, parseDecimal } from './money.js';
+import { parseCurrencyInput } from './format.js';
 
-export function isPositiveAmount(value) {
-  const parsed = parseDecimal(value);
-  if (!parsed.ok) return false;
-  return compareDecimal(parsed.value, 0) > 0;
+export function isPositiveAmount(value, options = {}) {
+  return parseCurrencyInput(value, options).ok;
 }
 
 export function isEmail(value) {
@@ -30,9 +28,12 @@ export function validateRecipient(value) {
  * @param {number|string} balance
  * @returns {boolean} false when either value is not a parseable decimal
  */
-export function isWithinBalance(amount, balance) {
-  const parsedAmount = parseDecimal(amount);
-  const parsedBalance = parseDecimal(balance);
+export function isWithinBalance(amount, balance, options = {}) {
+  const parsedAmount = parseCurrencyInput(amount, options);
+  const parsedBalance = parseCurrencyInput(balance, {
+    ...options,
+    allowZero: true,
+  });
   if (!parsedAmount.ok || !parsedBalance.ok) return false;
-  return compareDecimal(parsedAmount.value, parsedBalance.value) <= 0;
+  return parsedAmount.minorUnits <= parsedBalance.minorUnits;
 }

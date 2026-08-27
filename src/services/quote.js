@@ -45,7 +45,6 @@ export function calculateFee(amount, currency = 'USD') {
 
 /**
  * Build a full quote for a transfer.
- *
  * @param {number|string} amount - amount to send in the source currency
  * @param {string} from - source currency code
  * @param {string} to - destination currency code
